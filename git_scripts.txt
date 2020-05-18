@@ -1,0 +1,242 @@
+{
+    Chapter 1:,
+
+    Snapshots, Not Differences:,
+    Nearly Every Operation is Local:
+        Don't pay network latency overhead.
+    Checksummed:
+        Like bitcoin's hashs, merkle tree...
+        Using SHA-1 hash.
+        Git stores everything in its database not by file name but by the hash value of its contents.
+    The Three States(for files reside in):
+        a. modified
+            changed the file but have not committed it
+        b. staged
+            marked a modified file to go into next commit snapshot
+        c. committed
+            data is safely stored in local database
+
+   +---------+       +-------+       +--------------+
+   | Working |       |Staging|       |.git directory|
+   |Directory|       | Area  |       | (Repository) |
+   +---------+       +-------+       +--------------+
+        |                |                   |
+        | /              |                   |
+        |{------ Checkout the project -------|
+        | \              |                   |
+        |                |                   |
+        |              \ |                   |
+        |-- Stage Fixes-}|                   |
+        |              / |                 \ |
+        |                |----- Commit -----}|
+        |                |                 / |
+        |                |                   |
+
+}
+
+{
+    Chapter 2:
+    
+    The Lifecycle of the Status of Files:
+    
+    +---------+        +----------+        +--------+          +------+
+    |Untracked|        |Unmodified|        |Modified|          |Staged|
+    +---------+        +----------+        +--------+          +------+
+         |                   |                  |                  |
+         |                   |                  |                \ |
+         |-- Add the file ----------------------------------------}|
+         |                   |                \ |                / |
+         |                   |- Edit the file--}|                  |
+         |                   |                / |                \ |
+         |                   |                  |- Stage the file-}|
+         | /                 |                  |                / |
+         |{- Remove the file-|                  |                  |
+         | \                 | /                |                  |
+         |                   |{------------------------- Commit -- |
+         |                   | \                |                  |
+         |                   |                  |                  |
+
+    Ignoring Files:
+        -Blank lines or lines starting with # are ignored.
+        -Standard glob(simplified regular expressions that shells use) patterns work, and will be applied resursively throughout the entire working tree.
+        -Start patterns with a forward slash(/) to avoid recursivity.
+        -End patterns with a forward slash(/) to specify a directory.
+        -Negate a patern by starting it with an exclamation point(!).
+    
+    git diff:
+        $ git diff
+            -With no arguments, git diff only shows the changes that are still unstaged comparing with last staged(if there are no staged currently, it will compare to last commit). 
+        $ git diff --staged
+            -git diff --staged could compare staged changes to last commit.
+        $ git diff --cached
+            -git diff --cached will show what have staged so far(--staged and --cached are synonyms).
+    
+    git commit:
+        $ git commit
+            -Changes not staged for commit will be kept in the working directory.
+        $ git commit -v
+            -git commit -v will show the diff in the commit editor page.
+        $ git commit -m
+            -git commit -m could commit inline. e.g. $ git commit -m "commit message"
+        -Commit is making a snapshot in your staging area.
+
+    Skipping the Staging Area:
+        $ git commit -a
+            -Adding the -a option to the git commit command makes Git automatically stage every file that is already tracked before doing the commit, letting you skip the git add part.
+
+    Removing Files:
+        $ git rm
+            -git rm is like git add, it remove the file in the working directory and "staged" the file's deletion to the staging area, then committed to complete the removal.
+        $ git rm -f
+            -If the file has been modified or has already added to the staging area, then must force the removal with -f opiton.
+        $ git rm --cached
+            -If you want to keep the file in your working tree but remove it from your staging area. In other words, you want to keep the file in your hard disk and don't want git to track it anymore, using "git rm --cached <filename>". This is typically happened when you forgot to add something to your .gitignore file and accidently staged it.
+        -git rm log/\*.log removes all files that have the .log extension in the log/ directory(Note the backslash(\) in front of the *, Git does its own filename expansion.)
+
+    Moving Files:
+        $ git mv file_from file_to
+            -It do the same work like:
+                $ mv file_from file_to
+                $ git rm  file_from
+                $ git add file_to
+            -Rename a file also use this command.
+    
+    Viewing the Commit History:
+        $ git log
+            -Lists the commits made in that repository in reverse chronological(按時間順序) order;
+        -There are a huge number and variety of options to the git log command.
+        $ git log -p (or --patch)
+            -Show the difference (the patch output) introduced in each commit.
+        $ git log -Numbers (e.g. -2)
+            -Show only the last Numbers entries.
+        $ git log --stat
+            -Print statistics of each commit.
+        $ git log --shortstat
+            -Display only the changed/insertions/deletions line from the --stat command.
+        $ git log --pretty=<options>
+            -options include "oneline, short, full, fuller, format"(oneline is most often used and can directly uses as --oneline)
+        $ git log --pretty=format:"%h - %an, %ar : %s"
+            -Customize your own log output format, %an is the author name for example.
+        $ git log --graph
+            -graph is usually used with oneline and format, outputing a nice little ASCII graph showing your branch and merge history.
+
+    Limiting Log Output:
+        -git log takes a number of useful limiting options; that is, let you show only a subset of commits.
+        $ git log --since=<date or time specify> (or --after)
+            -Date or time could be "2 years 1 day 3 minutes ago" or "2020-04-20" formats.
+            -Limit the commits to those made after the specified data.
+        $ git log --until=<date or tiem specify> (or --before)
+            -Limit the commits to those made before the specified data.
+        -others like "--author, --commiter, --grep"
+        $ git log -S <string>
+            -Only show commits adding or removing code matching the string
+            -It's useful to track some modified function with this option.
+        $ git log --no-merges
+            -To prevent the display of merge commits cluttering up your log history.
+
+    Undoing Things:
+        -Be careful, because you can't always undo some of these undos.
+        $ git commit --amend
+            -This situation appears if you commit too early and possibly forget to add some files, or you mess up your commit message.
+            -Redo that commit with your staging area.
+        Unstaging a Staged File:
+            $ git reset HEAD <file>
+                -Unstaged the file.
+                -reset will go into detail later.
+        Unmodifying a Modified File:
+            $ git checkout -- <file>
+                -It is a dangerous command
+                -Any local changes to that fil are gone~Git just replaced that file with the most recently-commited version.
+    
+    Working with Remotes:
+        -This section involves how to manage remote repositories includes "adding remote repositories, removing remotes that are no longer valid, managing various remote branches and defining them as being tracked or not, and more."
+        $ git remote
+            -Listing the shortnames of each remote handle you've specified.
+            -If you clone from somewhere, then its default name is origin.
+            -The -v option shows you the URLs that Git has stored for the shortname to be used when reading and writing to that remote
+
+        Adding Remote Repositories:
+            $ git remote add <shortname> <url>
+                -Adding a new remote Git repository as a shortname you can reference easily.
+            $ git fetch <shortname>
+                -Fetching information from remote, e.g. You run $ git remote add pb <url>, then you could $ git fetch pb, to fetch data from the remote repository "pb"
+                -It doesn't automatically merge it with any of your work or modify what you're currently working on. You have to merge it manually into your work when you're ready.
+            $ git pull
+                -Automatically fetch and then merge that remote branch into your current branch.
+        Pushing to Your Remotes:
+            $ git push <remote> <branch>
+                -This command works only if you cloned from a server to which you have write access and if nobody has pushed in the meantime. If you and someone else clone at the same time and they push upstream and then you push upstream, your push will rightly be rejected. You’ll have to fetch their work first and incorporate it into yours before you’ll be allowed to push
+        Inspecting a Remote:
+            $ git remote show <remote>(e.g. $ git remote show origin)
+                -It lists the remotes' information and the configured information for local push or pull
+        Renaming and Removing Remotes:
+            $ git remote rename <old_name> <new_name>
+                -This changes all your remote-tracking branch names, too.
+            $ git remote remove(or rm) <remote>
+                -All remote-tracking branches and configuration settings associated with that remote are also deleted
+    
+    Tagging:
+        -Typically, people use this functionality to mark release points(v1.0, v2.0 and so on)
+        Listing Your Tags:
+            $ git tag(with optional -l or --list)
+                -Lists the tags in alphabetical order
+                -If you want to search for tags that match a particular pattern, you can run this: $ git tag -l "v1.8.5*"
+                -Listing tag wildcards requires -l or --list option
+        Creating Tags:
+            -Git supports two types of tags: lightweight and annotated
+            -A lightweight tag is very much like a branch that doesn’t change — it’s just a pointer to a specific commit.
+            -Annotated tags, however, are stored as full objects in the Git database. They’re checksummed; contain the tagger name, email, and date; have a tagging message; and can be signed and verified with GNU Privacy Guard (GPG). It’s generally recommended that you create annotated tags so you can have all this information; but if you want a temporary tag or for some reason don’t want to keep the other information, lightweight tags are available too.
+        Annotated Tags:
+            $ git tag -a <tag> [-m "message"]
+                -If you don't specify a message for an annotated tag, Git launches your editor so you can type it in(vim in macOS)
+            $ git show <tag>
+                -Show the tag data along with the commit.
+        Lightweight Tags:
+            -This is basically the commit checksum stored in a file -- no other information is kept.
+            $ git tag <tag_name>
+                -To create a lightweight tag, don't supply any of the -a, -s or -m options
+        Tagging Later:
+            $ git tag -a <tag_name> <commit_checksum>
+                -Tag commits after you've moved past them.
+        Sharing Tags:
+            -By default, the git push doesn't transfer tags to remote servers. You will have to explicitly push tags to a shared server after you have created them.
+            $ git push <remote> <tag_name>
+                -Pushing only one tag to remote servers.
+            $ git push <remote> --tags
+                -Pushing up a lot of tags at once.
+            -git push pushes both types of tags
+        Deleting Tags:
+            -To delete a tag on your local repository, you can use:
+                $ git tag -d <tag_name>
+            -There are two common variations for deleting a tag from a remote server:
+                $ git push <remote> :refs/tags/<tag_name>
+                    -The way to interpret the above is to read it as the null value before the colon is begin pushed to the remote tag name.
+                $ git push origin --delete <tag_name>
+                    -The second way (and more intuitive) way to delete a remote tag.
+        Checking out Tags:
+            -If you want to view the versions of files a tag is pointing to, you can do a "git checkout of that tag", although this puts your repository in "detached HEAD" state, which has some ill side effects
+                $ git checkout <tag_name>
+            -In “detached HEAD” state, if you make changes and then create a commit, the tag will stay the same, but your new commit won’t belong to any branch and will be unreachable, except by the exact commit hash. Thus, if you need to make changes — say you’re fixing a bug on an older version, for instance — you will generally want to create a branch:
+                $ git checkout -b <new_branch> <tag_name>
+
+    Git Aliases:
+        -Little tip that can make your Git experience simpler, easier, and more familiar: aliases. Using "git config":
+            $ git config --global alias.<alias> <replace_text>
+                -e.g. $ git config --global alias.co checkout, then you just $ git co, equal to $ git checkout
+            -Some useful alias:
+                $ git config --global alias.unstage 'reset HEAD --'
+                    -git unstage [file] = git reset HEAD -- [file]
+                $ git config --global alias.last 'log -1 HEAD'
+                    -git last = git log -1 HEAD
+                    -Printing the last commit
+            -If you want to run an external command, you could start the command with a ! character:
+            -e.g. Aliasing git visual to run gitk:
+                $ git config --global alias.visual '!gitk'
+
+    Chapter 2 END
+}
+
+{
+    Chapter 3: Git Branching
+        Reference progit: ~/Documents/CS../git/progit.pdf
+}
