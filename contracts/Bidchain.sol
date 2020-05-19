@@ -24,14 +24,17 @@ contract Bidchain {
  * State object is Active when some bidder call bidding()
  * State object is Waited when the auction exists bidder and time up
  * State object is Locked when seller send money to the contract
+ *                    |
+ *                      We use security deposit at auction creation, and don't need this state
  * State object is Released when bidder confirm the deal
  * State object is Closed when the auction is inactive
  */
-    enum State { Created, Active, Waited, Locked, Released, Closed }
+    enum State { Created, Active, Waited,/* Locked,*/ Released, Closed }
 
     struct Auction {
         uint32              endTime;    // Auction will close after endTime
         uint256             price;      // Current offered max price
+        uint256             deposit;    // security deposit when this auction is created.
         address payable     seller;     // Seller's account address
         address payable     winner;     // After auction closed, the max price's account address
         ItemInfo            itemInfo;   // Item's information, e.g. name, description, imageURL
@@ -41,6 +44,8 @@ contract Bidchain {
     Auction[] public auctions;
     mapping (address => uint32[])   public seller2Auction;
     mapping (uint32 => address)     public auction2Seller;
+    uint256 public securityDeposit;
+    address payable owner;
 
     modifier onlySeller(uint32 auctionId) {
         require(msg.sender == auction2Seller[auctionId], "Only seller can call this!");
@@ -54,6 +59,7 @@ contract Bidchain {
 
     modifier validAuction(uint32 period, uint32 infoNum) {
         require(period <= 3 days && infoNum == 3, "Invalid auction creation!");
+        require(msg.value >= securityDeposit, "Need to send security deposit!");
         _;
     }
     modifier validBidding(uint32 auctionId) {
@@ -65,7 +71,15 @@ contract Bidchain {
                 auctions[auctionId].state == State.Active, "Auction is inactive!");
         _;
     }
+    modifier onlyOwner() {
+        require(msg.sender == owner, "You are not contract owner!");
+        _;
+    }
 
+    constructor() public {
+        securityDeposit = 0.1 ether;   // 600 NTD 2020/05/19
+        owner = msg.sender;
+    }
 /*
  * Create the new auction by seller,
  * you can access seller's auction by first query seller2Auction[seller-address],
@@ -75,10 +89,12 @@ contract Bidchain {
                            uint256 beginPrice,
                            string[] calldata itemInfo)
                            external
+                           payable
                            validAuction(period, uint32(itemInfo.length)) {
 
         uint32 id = uint32(auctions.push(Auction(uint32(now) + period,
                                                  beginPrice,
+                                                 securityDeposit,
                                                  msg.sender,
                                                  address(0),
                                                  ItemInfo(itemInfo[0],
@@ -105,6 +121,7 @@ contract Bidchain {
         for (uint32 i = 0; i < auctions.length; i++) {
             if (auctions[i].endTime < uint32(now)) {
                 if (auctions[i].state == State.Created) {
+                    auctions[i].seller.transfer(auctions[i].deposit);
                     auctions[i].state = State.Closed;
                     emit Closed(i);
                 }
@@ -116,22 +133,25 @@ contract Bidchain {
         }
     }
 
+    /*
+     * No need this function anymore because we use security deposit at the createAuction()
     function locking(uint32 auctionId) external payable onlySeller(auctionId) {
         require(auctions[auctionId].state == State.Waited, "Invalid state!");
         require(msg.sender.balance >= msg.value && msg.value == auctions[auctionId].price, "Insufficient token!");
         auctions[auctionId].state = State.Locked;
         emit Locked(auctionId);
     }
+   */
 
     function confirm(uint32 auctionId) external onlyWinner(auctionId) {
-        require(auctions[auctionId].state == State.Locked, "Invalid state!");
+        require(auctions[auctionId].state == State.Waited, "Invalid state!");
         auctions[auctionId].state = State.Released;
         emit Released(auctionId);
     }
 
     function release(uint32 auctionId) external onlySeller(auctionId) {
         require(auctions[auctionId].state == State.Released, "Invalid state!");
-        auctions[auctionId].seller.transfer(2*auctions[auctionId].price);
+        auctions[auctionId].seller.transfer(auctions[auctionId].price + auctions[auctionId].deposit);
         auctions[auctionId].state = State.Closed;
         emit Closed(auctionId);
     }
@@ -172,6 +192,12 @@ contract Bidchain {
         require(msg.sender == auctions[auctionId].seller);
         require(newItemInfo.length == 3);
         auctions[auctionId].itemInfo = ItemInfo(newItemInfo[0], newItemInfo[1], newItemInfo[2]);
+    }
+    function getSecurityDeposit() external view returns(uint256) {
+        return securityDeposit;
+    }
+    function setSecurityDeposit(uint256 newDeposit) external onlyOwner {
+        securityDeposit = newDeposit;
     }
 
 
