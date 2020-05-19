@@ -20,10 +20,12 @@ contract Bidchain {
     }
 
 /*
- * State object is Created if created but no one bidding
- * State object is Active if someone bidding and the time is not ended
- * State object is Locked after time ended and buyer not confirmed
- * State object is Inactive if buyer confirmed or time ended and no one bidding
+ * State object is Created when seller call createAuction()
+ * State object is Active when some bidder call bidding()
+ * State object is Waited when the auction exists bidder and time up
+ * State object is Locked when seller send money to the contract
+ * State object is Released when bidder confirm the deal
+ * State object is Closed when the auction is inactive
  */
     enum State { Created, Active, Waited, Locked, Released, Closed }
 
@@ -32,8 +34,8 @@ contract Bidchain {
         uint256             price;      // Current offered max price
         address payable     seller;     // Seller's account address
         address payable     winner;     // After auction closed, the max price's account address
-        ItemInfo            itemInfo;
-        State               state;
+        ItemInfo            itemInfo;   // Item's information, e.g. name, description, imageURL
+        State               state;      // Auction's state, see above
     }
 
     Auction[] public auctions;
@@ -54,10 +56,13 @@ contract Bidchain {
         require(period <= 3 days && infoNum == 3, "Invalid auction creation!");
         _;
     }
-    modifier validBidding(uint32 auctionId, uint256 newPrice) {
-        require(auctionId < auctions.length &&
-                (auctions[auctionId].state == State.Created || auctions[auctionId].state == State.Active) &&
-                newPrice > auctions[auctionId].price, "Invalid bidding!");
+    modifier validBidding(uint32 auctionId) {
+        require(auctionId < auctions.length, "Invalid auction ID!");
+        require(msg.sender.balance >= msg.value, "Insufficient account balance!");
+        require(msg.value > auctions[auctionId].price, "Your price is less than current price!");
+        require(uint32(now) < auctions[auctionId].endTime, "Auction has closed!");
+        require(auctions[auctionId].state == State.Created ||
+                auctions[auctionId].state == State.Active, "Auction is inactive!");
         _;
     }
 
@@ -66,15 +71,26 @@ contract Bidchain {
  * you can access seller's auction by first query seller2Auction[seller-address],
  * then auctions[seller2Auction[seller-address][specify-seller's-auction-id]]
  */
-    function createAuction(uint32 period, uint256 beginPrice, string[] calldata itemInfo) external validAuction(period, uint32(itemInfo.length)) {
-        uint32 id = uint32(auctions.push(Auction(uint32(now) + period, beginPrice, msg.sender, address(0), ItemInfo(itemInfo[0], itemInfo[1], itemInfo[2]), State.Created))) - 1;
+    function createAuction(uint32 period,
+                           uint256 beginPrice,
+                           string[] calldata itemInfo)
+                           external
+                           validAuction(period, uint32(itemInfo.length)) {
+
+        uint32 id = uint32(auctions.push(Auction(uint32(now) + period,
+                                                 beginPrice,
+                                                 msg.sender,
+                                                 address(0),
+                                                 ItemInfo(itemInfo[0],
+                                                          itemInfo[1],
+                                                          itemInfo[2]),
+                                                 State.Created))) - 1;
         seller2Auction[msg.sender].push(id);
         auction2Seller[id] = msg.sender;
         emit NewAuction(id, uint32(now) + period, beginPrice, msg.sender, itemInfo);
     }
 
-    function bidding(uint32 auctionId) external payable validBidding(auctionId, msg.value) {
-        require(msg.sender.balance >= msg.value, "Insufficient token!");
+    function bidding(uint32 auctionId) external payable validBidding(auctionId) {
         if (auctions[auctionId].state == State.Active)
             auctions[auctionId].winner.transfer(auctions[auctionId].price);  // Refund to the original bidder
         auctions[auctionId].winner  = msg.sender;
@@ -87,12 +103,12 @@ contract Bidchain {
     // Checking the time up auctions and emit event
     function checking() external {
         for (uint32 i = 0; i < auctions.length; i++) {
-            if ((auctions[i].state == State.Created || auctions[i].state == State.Active) && auctions[i].endTime > uint32(now)) {
+            if (auctions[i].endTime < uint32(now)) {
                 if (auctions[i].state == State.Created) {
                     auctions[i].state = State.Closed;
                     emit Closed(i);
                 }
-                else {
+                else if (auctions[i].state == State.Active) {
                     auctions[i].state = State.Waited;
                     emit Waited(i);
                 }
