@@ -3,3 +3,4 @@
 # Ignore .swp file
 *.swp
 
+.DS_Store
