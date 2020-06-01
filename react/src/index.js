@@ -24,7 +24,7 @@ import './index.css';
 
 var todoItems = [];
   
-class TodoApp extends React.Component {
+class Bidchain extends React.Component {
   constructor (props) {
     super(props);
     this.addItem = this.addItem.bind(this);
@@ -38,9 +38,9 @@ class TodoApp extends React.Component {
       const web3 = await getWeb3();
       const accounts = await web3.eth.getAccounts();
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = TodoAppContract.networks[networkId];
+      const deployedNetwork = BidchainContract.networks[networkId];
       const instance = new web3.eth.Contract(
-        TodoAppContract.abi,
+        BidchainContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
       this.setState({ web3, accounts, contract: instance });
@@ -99,6 +99,6 @@ class TodoApp extends React.Component {
 }
 
 ReactDOM.render(
-  <TodoApp initItems={todoItems}/>,
+  <Bidchain initItems={todoItems}/>,
   document.getElementById('root')
 );
