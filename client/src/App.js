@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import BidchainContract from "./build/contracts/Bidchain.json";
-import getWeb3 from "./getWeb3";
+import getWeb3 from "./utils/getWeb3";
 
 import "./App.css";
 
@@ -8,7 +8,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.runExample = this.runExample.bind(this);
-        this.state = {web3:null, accounts:null, contract:null};
+        this.state = {web3:null, accounts:null, contract:null, storageValue:null};
     }
 
   componentDidMount = async () => {
@@ -26,7 +26,6 @@ class App extends Component {
         BidchainContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
-      //console.log(deployedNetwork.address)
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
@@ -46,12 +45,17 @@ class App extends Component {
     // Stores a given value, 5 by default.
     //await this.state.contract.methods.createAuction(1000, 50, ["qq", "qqq", "qqqqq"]).send({from: this.state.accounts[0], value: 100000000000000000});
 
-    await this.state.contract.methods.createAuction(1000, 50, ["q","gg","qgq"]).send({from: this.state.accounts[0]});
+    var id = await this.state.contract.methods.createAuction(1000, 50, "q","gg","qgq").send({from: this.state.accounts[0], value:100000000000000000});
+    var num = await this.state.contract.methods.getAuctionNum.call();
     // Get the value from the contract to prove it worked.
-    //const response = await this.state.contract.methods.getAuctions();
+    console.log("id is: ", id);
+    console.log("-------------");
+    console.log("num is: ", num);
+    console.log("-------------");
+    const response = await this.state.contract.methods.getAuctionById(id.words[0]).call();
 
     // Update state with the result.
-    //this.setState({ storageValue: response.length });
+    this.setState({ storageValue: response});
   };
 
   render() {

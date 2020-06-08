@@ -1,23 +1,16 @@
-//pragma solidity >=0.5.0 <0.6.0;   // Not works
-pragma experimental ABIEncoderV2;   // It seems that using user-defined struct objects must use this compiler version
+pragma solidity >=0.5.0 <0.6.0;   // Not works
+//pragma experimental ABIEncoderV2;   // It seems that using user-defined struct objects must use this compiler version
 
 //import "../node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Bidchain {
 
-    event NewAuction(uint32 auctionId, uint32 endTime, uint256 beginPrice, address seller, string[] itemInfo);
+    event NewAuction(uint32 auctionId, uint32 endTime, uint256 beginPrice, address seller, string itemName, string itemDescript, string itemImageURL);
     event Bidding(uint32 auctionId, uint32 endTime, uint256 newPrice, address bidder);
     event Released(uint32 auctionId);
     event Locked(uint32 auctionId);
     event Waited(uint32 auctionId);
     event Closed(uint32 auctionId);
-
-
-    struct ItemInfo {
-        string name;                // Item's name
-        string descript;            // Item description
-        string imageURL;            // Maybe imgur URL
-    }
 
 /*
  * State object is Created when seller call createAuction()
@@ -37,7 +30,9 @@ contract Bidchain {
         uint256             deposit;    // security deposit when this auction is created.
         address payable     seller;     // Seller's account address
         address payable     winner;     // After auction closed, the max price's account address
-        ItemInfo            itemInfo;   // Item's information, e.g. name, description, imageURL
+        string              itemName;
+        string              itemDescript;
+        string              itemImageURL;
         State               state;      // Auction's state, see above
     }
 
@@ -57,8 +52,8 @@ contract Bidchain {
         _;
     }
 
-    modifier validAuction(uint32 period, uint32 infoNum) {
-        require(period <= 3 days && infoNum == 3, "Invalid auction creation!");
+    modifier validAuction(uint32 period) {
+        require(period <= 3 days, "Invalid auction creation!");
         require(msg.value >= securityDeposit, "Need to send security deposit!");
         _;
     }
@@ -87,23 +82,26 @@ contract Bidchain {
  */
     function createAuction(uint32 period,
                            uint256 beginPrice,
-                           string[] calldata itemInfo)
+                           string calldata name,
+                           string calldata descript,
+                           string calldata imageURL)
                            external
                            payable
-                           validAuction(period, uint32(itemInfo.length)) {
+                           validAuction(period) returns(uint32) {
 
         uint32 id = uint32(auctions.push(Auction(uint32(now) + period,
                                                  beginPrice,
                                                  securityDeposit,
                                                  msg.sender,
                                                  address(0),
-                                                 ItemInfo(itemInfo[0],
-                                                          itemInfo[1],
-                                                          itemInfo[2]),
+                                                 name,
+                                                 descript,
+                                                 imageURL,
                                                  State.Created))) - 1;
         seller2Auction[msg.sender].push(id);
         auction2Seller[id] = msg.sender;
-        emit NewAuction(id, uint32(now) + period, beginPrice, msg.sender, itemInfo);
+        emit NewAuction(id, uint32(now) + period, beginPrice, msg.sender, name, descript, imageURL);
+        return id;
     }
 
     function bidding(uint32 auctionId) external payable validBidding(auctionId) {
@@ -156,8 +154,33 @@ contract Bidchain {
         emit Closed(auctionId);
     }
     // Getter and Setter
-    function getAuctions() external view returns (Auction[] memory) {
-        return auctions;
+    function getAuctionNum() external view returns (uint256) {
+        return auctions.length;
+    }
+    function getAuctionById(uint32 auctionId) external view returns(
+        uint32,         // endTime
+        uint256,        // price
+        uint256,        // deposit
+        address,        // seller
+        address,        // winner
+        string memory,  // itemName
+        string memory,  // itemDescript
+        string memory,  // itemImageURL
+        State           // state
+    ) {
+        require(auctionId < auctions.length);
+        Auction memory auc = auctions[auctionId];
+        return (
+            auc.endTime,
+            auc.price,
+            auc.deposit,
+            auc.seller,
+            auc.winner,
+            auc.itemName,
+            auc.itemDescript,
+            auc.itemImageURL,
+            auc.state
+        );
     }
     function getPrice(uint32 auctionId) external view returns(uint256) {
         require(auctionId < auctions.length);
@@ -176,9 +199,13 @@ contract Bidchain {
         require(auctionId < auctions.length);
         return auctions[auctionId].winner;
     }
-    function getItemInfo(uint32 auctionId) external view returns(ItemInfo memory) {
+    function getItemInfo(uint32 auctionId) external view returns(string memory, string memory, string memory) {
         require(auctionId < auctions.length);
-        return auctions[auctionId].itemInfo;
+        return (
+            auctions[auctionId].itemName,
+            auctions[auctionId].itemDescript,
+            auctions[auctionId].itemImageURL
+        );
     }
     function setTime(uint32 auctionId, uint32 newTime) external returns(bool) {
         require(auctionId < auctions.length);
@@ -187,11 +214,13 @@ contract Bidchain {
             return false;
         auctions[auctionId].endTime = newTime;
     }
-    function setItemInfo(uint32 auctionId, string[] calldata newItemInfo) external returns(bool) {
+    function setItemInfo(uint32 auctionId, string calldata name, string calldata descript, string calldata imageURL) external returns(bool) {
         require(auctionId < auctions.length);
         require(msg.sender == auctions[auctionId].seller);
-        require(newItemInfo.length == 3);
-        auctions[auctionId].itemInfo = ItemInfo(newItemInfo[0], newItemInfo[1], newItemInfo[2]);
+        auctions[auctionId].itemName = name;
+        auctions[auctionId].itemDescript = descript;
+        auctions[auctionId].itemImageURL = imageURL;
+
     }
     function getSecurityDeposit() external view returns(uint256) {
         return securityDeposit;
