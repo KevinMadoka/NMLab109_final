@@ -15,7 +15,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import getWeb3 from "./utils/getWeb3";
 
-import BidchainContract from "./build/contracts/Bidchain.json"
+import TodoAppContract from "./build/contracts/TodoApp.json"
 
 import TodoHeader from './pages/TodoHeader';
 import TodoForm from './pages/TodoForm';
@@ -24,7 +24,7 @@ import './index.css';
 
 var todoItems = [];
   
-class Bidchain extends React.Component {
+class TodoApp extends React.Component {
   constructor (props) {
     super(props);
     this.addItem = this.addItem.bind(this);
@@ -38,9 +38,9 @@ class Bidchain extends React.Component {
       const web3 = await getWeb3();
       const accounts = await web3.eth.getAccounts();
       const networkId = await web3.eth.net.getId();
-      const deployedNetwork = BidchainContract.networks[networkId];
+      const deployedNetwork = TodoAppContract.networks[networkId];
       const instance = new web3.eth.Contract(
-        BidchainContract.abi,
+        TodoAppContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
       this.setState({ web3, accounts, contract: instance });
@@ -99,6 +99,6 @@ class Bidchain extends React.Component {
 }
 
 ReactDOM.render(
-  <Bidchain initItems={todoItems}/>,
+  <TodoApp initItems={todoItems}/>,
   document.getElementById('root')
 );
