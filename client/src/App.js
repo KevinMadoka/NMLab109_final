@@ -5,7 +5,11 @@ import getWeb3 from "./getWeb3";
 import "./App.css";
 
 class App extends Component {
-  state = { storageValue: 0, web3: null, accounts: null, contract: null };
+    constructor(props) {
+        super(props);
+        this.runExample = this.runExample.bind(this);
+        this.state = {web3:null, accounts:null, contract:null};
+    }
 
   componentDidMount = async () => {
     try {
@@ -22,10 +26,11 @@ class App extends Component {
         BidchainContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
+      //console.log(deployedNetwork.address)
 
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance });
+      this.setState({ web3, accounts, contract: instance, OK:1});
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
@@ -36,36 +41,29 @@ class App extends Component {
   };
 
   runExample = async () => {
-    const { accounts, contract } = this.state;
+    //const { accounts, contract } = this.state;
 
     // Stores a given value, 5 by default.
-    await contract.methods.createAuction(1000, 50, ["qq", "qqq", "qqqqq"]).send({from: accounts[0], value: 100000000000000000});
+    //await this.state.contract.methods.createAuction(1000, 50, ["qq", "qqq", "qqqqq"]).send({from: this.state.accounts[0], value: 100000000000000000});
 
+    await this.state.contract.methods.createAuction(1000, 50, ["q","gg","qgq"]).send({from: this.state.accounts[0]});
     // Get the value from the contract to prove it worked.
-    const response = await contract.methods.getAuctions();
+    //const response = await this.state.contract.methods.getAuctions();
 
     // Update state with the result.
-    this.setState({ storageValue: response });
+    //this.setState({ storageValue: response.length });
   };
 
   render() {
-    if (!this.state.web3) {
+    if (!this.state.OK) {
       return <div>Loading Web3, accounts, and contract...</div>;
     }
     return (
-      <div className="App">
-        <h1>Good to Go!</h1>
-        <p>Your Truffle Box is installed and ready.</p>
-        <h2>Smart Contract Example</h2>
-        <p>
-          If your contracts compiled and migrated successfully, below will show
-          a stored value of 5 (by default).
-        </p>
-        <p>
-          Try changing the value stored on <strong>line 40</strong> of App.js.
-        </p>
-        <div>The stored value is: {this.state.storageValue}</div>
-      </div>
+        <div>
+            <div>The contract address: {this.state.contract.address} </div>
+            <button onClick={this.runExample}>createAuction!</button>
+            <div>The stored value is: {this.state.storageValue}</div>
+        </div>
     );
   }
 }

@@ -2,5 +2,6 @@
 /build
 # Ignore .swp file
 *.swp
-
+*.icloud
+.vimrc
 .DS_Store
