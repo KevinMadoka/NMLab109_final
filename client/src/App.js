@@ -46,13 +46,15 @@ class App extends Component {
     //await this.state.contract.methods.createAuction(1000, 50, ["qq", "qqq", "qqqqq"]).send({from: this.state.accounts[0], value: 100000000000000000});
 
     var id = await this.state.contract.methods.createAuction(1000, 50, "q","gg","qgq").send({from: this.state.accounts[0], value:100000000000000000});
-    var num = await this.state.contract.methods.getAuctionNum.call();
+    var num = 0;
+    await this.state.contract.methods.getAuctionNum().call()
+          .then((number) => {console.log(number); num = number;});
     // Get the value from the contract to prove it worked.
     console.log("id is: ", id);
     console.log("-------------");
     console.log("num is: ", num);
     console.log("-------------");
-    const response = await this.state.contract.methods.getAuctionById(id.words[0]).call();
+    const response = await this.state.contract.methods.getAuctionById(0).call();
 
     // Update state with the result.
     this.setState({ storageValue: response});

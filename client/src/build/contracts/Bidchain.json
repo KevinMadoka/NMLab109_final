@@ -23304,12 +23304,12 @@
         }
       },
       "links": {},
-      "address": "0x18519CC5225b1DD529105D590EF9ed3FA33202fF",
-      "transactionHash": "0x91392d36ecc9a3f44dd9b708af08f7886b47fbe7f7352378b461c1d37388222b"
+      "address": "0xC2cd68FD057B4cd9489000e9aA9A1985A75019a3",
+      "transactionHash": "0xf9649ab450ac9d18b735579ab5bdbdd2e488e2b94f35e36c9d6ea6f93fcd2427"
     }
   },
   "schemaVersion": "3.1.0",
-  "updatedAt": "2020-06-08T14:21:14.582Z",
+  "updatedAt": "2020-06-17T16:22:47.513Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
