@@ -8,6 +8,11 @@ import {
   Redirect
 } from "react-router-dom";
 import BidNavbar from "./component/BidNavbar";
+import HomePage from "./pages/HomePage";
+import AuctionPage from "./pages/AuctionPage";
+import BiddingPage from "./pages/BiddingPage";
+import UploadPage from "./pages/UploadPage";
+
 
 
 class App extends React.Component {
@@ -60,12 +65,11 @@ class App extends React.Component {
             </div>
             <div className='bidchain'>
               <Switch>
-                <Route exact path='/home' render={(props) => <HomePage {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
-                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
-                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
-                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
-                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
-                <Redirect from='/' to='/home' />
+                <Route exact path='/home'     render={(props) => <HomePage    {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Route exact path='/auction'  render={(props) => <AuctionPage {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Route exact path='/bidding'  render={(props) => <BiddingPage {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Route exact path='/upload'   render={(props) => <UploadPage  {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Redirect from='/' to='/bidding' />
               </Switch>
             </div>
           </Router>

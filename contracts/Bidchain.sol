@@ -38,7 +38,10 @@ contract Bidchain {
 
     Auction[] public auctions;
     mapping (address => uint32[])   public seller2Auction;
+    mapping (address => uint32)     public seller2AuctionNum;
     mapping (uint32 => address)     public auction2Seller;
+    mapping (address => uint32[])   public winner2Auction;
+    mapping (address => uint32)     public winner2AuctionNum;
     uint256 public securityDeposit;
     address payable owner;
 
@@ -99,6 +102,7 @@ contract Bidchain {
                                                  imageURL,
                                                  State.Created))) - 1;
         seller2Auction[msg.sender].push(id);
+        seller2AuctionNum[msg.sender]++;
         auction2Seller[id] = msg.sender;
         emit NewAuction(id, uint32(now) + period, beginPrice, msg.sender, name, descript, imageURL);
         return id;
@@ -125,6 +129,8 @@ contract Bidchain {
                 }
                 else if (auctions[i].state == State.Active) {
                     auctions[i].state = State.Waited;
+                    winner2Auction[auctions[i].winner].push(i);
+                    winner2AuctionNum[auctions[i].winner]++;
                     emit Waited(i);
                 }
             }
