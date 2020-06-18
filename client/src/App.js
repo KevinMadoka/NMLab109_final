@@ -1,37 +1,41 @@
-import React, { Component } from "react";
-import BidchainContract from "./build/contracts/Bidchain.json";
+import React from "react";
+import BidchainContract from "../../build/contracts/Bidchain.json";
 import getWeb3 from "./utils/getWeb3";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect
+} from "react-router-dom";
+import BidNavbar from "./component/BidNavbar";
 
-import "./App.css";
 
-class App extends Component {
-    constructor(props) {
-        super(props);
-        this.runExample = this.runExample.bind(this);
-        this.state = {web3:null, accounts:null, contract:null, storageValue:null};
-    }
-
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      web3: null,
+      accounts: null,
+      contract: null
+    };
+  }
   componentDidMount = async () => {
     try {
-      // Get network provider and web3 instance.
       const web3 = await getWeb3();
-
-      // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
-
-      // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = BidchainContract.networks[networkId];
       const instance = new web3.eth.Contract(
         BidchainContract.abi,
         deployedNetwork && deployedNetwork.address,
       );
-
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      this.setState({ web3, accounts, contract: instance, OK:1});
-    } catch (error) {
-      // Catch any errors for any of the above operations.
+      this.setState({
+        web3,
+        accounts,
+        contract: instance
+      });
+    }
+    catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`,
       );
@@ -39,39 +43,35 @@ class App extends Component {
     }
   };
 
-  runExample = async () => {
-    //const { accounts, contract } = this.state;
-
-    // Stores a given value, 5 by default.
-    //await this.state.contract.methods.createAuction(1000, 50, ["qq", "qqq", "qqqqq"]).send({from: this.state.accounts[0], value: 100000000000000000});
-
-    var id = await this.state.contract.methods.createAuction(1000, 50, "q","gg","qgq").send({from: this.state.accounts[0], value:100000000000000000});
-    var num = 0;
-    await this.state.contract.methods.getAuctionNum().call()
-          .then((number) => {console.log(number); num = number;});
-    // Get the value from the contract to prove it worked.
-    console.log("id is: ", id);
-    console.log("-------------");
-    console.log("num is: ", num);
-    console.log("-------------");
-    const response = await this.state.contract.methods.getAuctionById(0).call();
-
-    // Update state with the result.
-    this.setState({ storageValue: response});
-  };
-
   render() {
-    if (!this.state.OK) {
-      return <div>Loading Web3, accounts, and contract...</div>;
-    }
-    return (
+    if (!this.state.web3) {
+      return(
         <div>
-            <div>The contract address: {this.state.contract.address} </div>
-            <button onClick={this.runExample}>createAuction!</button>
-            <div>The stored value is: {this.state.storageValue}</div>
+          Loading web3...
         </div>
-    );
+      );
+    }
+    else {
+      return(
+        <div className='bg'>
+          <Router>
+            <div className='navbar'>
+              <BidNavbar />
+            </div>
+            <div className='bidchain'>
+              <Switch>
+                <Route exact path='/home' render={(props) => <HomePage {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Route exact path='/' render={(props) => <Page {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
+                <Redirect from='/' to='/home' />
+              </Switch>
+            </div>
+          </Router>
+        </div>
+      );
+    }
   }
 }
-
 export default App;
