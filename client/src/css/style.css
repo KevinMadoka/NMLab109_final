@@ -1,92 +1,10 @@
-.top_right{
-    text-align:right;
-    margin: 5px;
-    
+.itemImage img{
+  display: block;
+  width: 336px;
+  height: auto;
 }
-.top_left{
-    text-align:left;
-    margin: 5px;
-    
-}
-.my_page_button{
-    margin: 20px;
-}
-.topic{
-    margin-left: 50px;
-}
-.top{
-    display: inline;
-}
-.navbar_div{
-    background-color: black;
+.itemCard {
+  width: 336px;
+  height: auto;
 }
 
-/* public page */
-.author_title{
-    
-}
-.profile_header {
-    display: flex;
-    padding: 16px;
-    padding-left:100px;
-    align-items: center;
-}
-.profile_avatar {
-    width: 100px;
-    height: 100px;
-}
-.profile_avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-}
-.profile_author {
-    margin-left: 12px;
-    font-family: 'PT Sans', sans-serif;
-    font-weight: bold;
-    color:rgb(211, 206, 206);
-}
-
-/* setting page */
-.setting_bg{
-    margin-left: 20%;
-    margin-right: 20%;
-    padding-bottom: 200px;
-}
-.setting_line{
-    margin: 0px auto;
-    display: flex;
-    padding:2px;
-}
-/* .setting_input{
-    width: 30%;
-    margin: 0px auto;
-    background-color: transparent ;
-} */
-.setting_item_name{
-    font-family: 'PT Sans', sans-serif;
-    color:rgb(211, 206, 206);
-    margin-right:10px;
-}
-.setting_context{
-    font-family: 'PT Sans', sans-serif;
-    color:rgb(211, 206, 206);
-    margin-right:10px;
-    margin-top:5px;
-}
-/* help page */
-.help_topic{
-    font-family: 'PT Sans', sans-serif;
-    color:rgb(211, 206, 206);
-    float:left;
-    margin-left:30px;
-    margin-right:900px;
-}
-.help_text{
-    font-family: 'PT Sans', sans-serif;
-    color:rgb(211, 206, 206);
-    float:left;
-    margin-left: 50px;
-    text-align: left;
-    margin-bottom: 5px;
-}

@@ -58,7 +58,7 @@ class App extends React.Component {
     }
     else {
       return(
-        <div className='bg'>
+        <div>
           <Router>
             <div className='navbar'>
               <BidNavbar />

@@ -35,7 +35,7 @@ class BidNavbar extends React.Component {
   render() {
     return (
       <div className='navbar_div'>
-        <Navbar color="dark" dark expand="md">
+        <Navbar fluid color="dark" dark expand="sm">
           <Container>
             <NavbarBrand href='/home'>Home</NavbarBrand>
             <NavbarBrand href='/auction'>Auction</NavbarBrand>

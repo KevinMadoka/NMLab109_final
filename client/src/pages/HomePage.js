@@ -1,4 +1,7 @@
 import React from "react";
+import AuctionList from "../component/AuctionList";
+import {CardGroup} from "reactstrap";
+import "../css/style.css";
 
 
 class HomePage extends React.Component {
@@ -9,7 +12,6 @@ class HomePage extends React.Component {
       accounts: this.props.accounts,
       contract: this.props.contract,
       ownedId: null,
-      obj:null,
       winnedId: null
     };
   }
@@ -27,12 +29,9 @@ class HomePage extends React.Component {
       winnedId.push(await this.state.contract.methods.winner2Auction(this.state.accounts[0], i).call());
     }
 
-    var obj = [];
-    obj = await this.state.contract.methods.getAuctionById(ownedId[0]).call();
 
     this.setState({
       ownedId,
-      obj,
       winnedId
     });
   };
@@ -41,15 +40,25 @@ class HomePage extends React.Component {
   };
 
   render() {
-    if (this.state.obj)
     return(
       <div>
         <h1>OwnedId: {this.state.ownedId}</h1>
         <h1>WinnedId: {this.state.winnedId}</h1>
-        <h1>Obj: {this.state.obj[8]}</h1>
+        <h1>{Math.floor(Date.now()/1000)}</h1>
+        <div>
+          <AuctionList
+            web3={this.state.web3}
+            accounts={this.state.accounts}
+            contract={this.state.contract}
+            type="owned" />
+          <AuctionList
+            web3={this.state.web3}
+            accounts={this.state.accounts}
+            contract={this.state.contract}
+            type="winned" />
+        </div>
       </div>
     );
-    else return <div></div>
   }
 }
 export default HomePage;
