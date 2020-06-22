@@ -35,6 +35,12 @@ class AuctionPage extends React.Component {
     }, 5000);
   }
 
+  onClick = async () => {
+    await this.state.contract.methods.checking().send({from:this.state.accounts});
+    this.setState({
+      checking: false
+    });
+  };
 
   render() {
     return(
@@ -43,7 +49,7 @@ class AuctionPage extends React.Component {
           <h1>Online Auctions</h1>
         </div>
         <div className='auctionpage-button'>
-          {this.state.checking ? <Button size='lg' color='danger'>checking</Button> : <Button size='lg' color='success'>checking</Button>}
+          {this.state.checking ? <Button onClick={this.onClick} size='lg' color='danger'>checking</Button> : <Button onClick={this.onClick} size='lg' color='success'>checking</Button>}
         </div>
         <div>
           <AuctionList type='active' pageType='bidding' web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />

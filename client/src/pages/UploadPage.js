@@ -1,4 +1,5 @@
 import React from "react";
+import {Badge} from "reactstrap";
 
 
 class UploadPage extends React.Component {
@@ -13,6 +14,12 @@ class UploadPage extends React.Component {
 
   render() {
     return(
+      <div>
+        <h1>
+          <Badge color="secondary">Create your own auction</Badge>
+        </h1>
+        
+      </div>
     );
   }
 }

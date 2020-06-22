@@ -32,8 +32,8 @@ class UploadPage extends React.Component {
     event.preventDefault();
     const data = new FormData(event.target)
     var Houritlast = data.get('Time')
-    var Timeitlast = Houritlast*60*60
-    var Initialprice = parseInt(data.get('Price'))*parseInt(this.state.web3.utils.toWei('1', 'ether'));
+    var Timeitlast = parseInt(Houritlast)*60;
+    var Initialprice = (parseInt(data.get('Price'))*parseInt(this.state.web3.utils.toWei('1', 'ether'))).toString();
     var Title = data.get('Title')
     var Description = data.get('Description')
     var ImgUrl = data.get('Imgurl')
@@ -88,7 +88,7 @@ class UploadPage extends React.Component {
         <FormGroup row>
         <Label for="Time" sm={2}>how long your auction will last</Label>
           <Col sm={6}>
-            <Input type="text" name="Time" id="Time" placeholder="type in number of hours,ex:2(means 2 hours)" />
+            <Input type="text" name="Time" id="Time" placeholder="type in number of minutes,ex:2(means 2 minutes)" />
           </Col>
         </FormGroup>
 
