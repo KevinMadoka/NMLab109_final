@@ -11,35 +11,39 @@ class AuctionPage extends React.Component {
       web3: this.props.web3,
       accounts: this.props.accounts,
       contract: this.props.contract,
-      checking: false
+      checking: false,
+      intervalId: null
     };
   }
 
   componentDidMount = async () => {
     var intervalId = setInterval( async () => {
       if (!this.state.checking) {
-        const nowTime = Date.now()/1000;
-        var remainTime = 0;
         var status = 0;
+        var endTime = 0;
         const num = await this.state.contract.methods.getAuctionNum().call();
         for (var i = 0; i < num; i++) {
-          remainTime = await this.state.contract.methods.getRemainTime(i).call();
+          endTime = await this.state.contract.methods.getAuctionEndTime(i).call();
           status = await this.state.contract.methods.getAuctionStateById(i).call();
-          console.log('remaintime: ', remainTime)
-          if (remainTime === '0' && (status === '1' || status === '0')) {
+          if (Date.now() >= parseInt(endTime)*1000 && (status === '1' || status === '0')) {
             this.setState({checking: true});
             break;
           }
         }
       }
-    }, 5000);
+    }, 1000);
+    this.setState({intervalId});
   }
+  componentWillUnmount = async () => {
+    clearInterval(this.state.intervalId);
+  };
 
   onClick = async () => {
-    await this.state.contract.methods.checking().send({from:this.state.accounts});
+    await this.state.contract.methods.checking().send({from:this.state.accounts[0]});
     this.setState({
       checking: false
     });
+    window.location.reload(false);
   };
 
   render() {

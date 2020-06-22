@@ -39,6 +39,14 @@ class AuctionList extends React.Component {
           idList.push(i);
       }
     }
+    else if (this.state.type === "ended") {
+      num = await this.state.contract.methods.getAuctionNum().call();
+      for (var i = 0; i < num; i++) {
+        var auc = await this.state.contract.methods.getAuctionById(i).call();
+        if ((auc[3] === this.state.accounts[0] && auc[8] === '3') || (auc[4] === this.state.accounts[0] && auc[8] === '2') )
+          idList.push(i);
+      }
+    }
     this.setState({
       idList
     });

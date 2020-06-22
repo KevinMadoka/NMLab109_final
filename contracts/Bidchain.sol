@@ -240,7 +240,8 @@ contract Bidchain {
     function getAuctionStateById(uint32 auctionId) external view returns(State) {
         return auctions[auctionId].state;
     }
-
-
+    function getAuctionEndTime(uint32 auctionId) external view returns(uint32) {
+        return auctions[auctionId].endTime;
+    }
 }
 
