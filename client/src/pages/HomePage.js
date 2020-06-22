@@ -1,8 +1,34 @@
 import React from "react";
 import AuctionList from "../component/AuctionList";
-import {CardGroup} from "reactstrap";
 import "../css/style.css";
 
+const testAuctions = [
+  [
+    "Niva Lamp Table",
+    "Scandinavian FeelThe Scandinavian-inspired Niva Lamp Table will complement any room in your house. The combination of engineered and solid timber components mean it’s signature legs and curved edges work beautifully with your home décor while providing a soothing, natural feel.",
+    "https://www.fantasticfurniture.com.au/medias/NIVLTB2DWOOOFOIOAK-DIM-1-CONTAINER-original-FantasticFurniture-WF-Dimension-Large?context=bWFzdGVyfGltYWdlcy9OSVZMVEIyRFdPT09GT0lPQUt8NzEzNjZ8aW1hZ2UvanBlZ3xpbWFnZXMvTklWTFRCMkRXT09PRk9JT0FLL2hhMi9oMWQvODk3MzkzODcyMDc5OC5qcGd8MThjYzhiOWQxZWZlZjliMDUzNzhkYmI3Njk5M2QwYjE0N2QzNGZkMzhmMDRkYzQyZTJlYWI2MGQ3NGJjYjU3ZQ"
+  ],
+  [
+    "Indivi Sofa",
+    "Seasons pass and trends come and go, but the modern elegance of the Indivi sofa is timeless. With low armrests that provide a grounded and contemporary look",
+    "https://images.demandware.net/dw/image/v2/BBBV_PRD/on/demandware.static/-/Sites-master-catalog/default/dwd633af54/images/700000/704909.jpg?sw=2000"
+  ],
+  [
+    "Louise PVC figure",
+    "Zero no Tsukaima Louise Uniform Ver. [1/8 Scale PVC]",
+    "https://images-na.ssl-images-amazon.com/images/I/41Y7dnuytML._AC_.jpg"
+  ],
+  [
+    "Switch",
+    "Custom used switch",
+    "https://i.imgur.com/u6xjqd3.jpg"
+  ],
+  [
+    "Case bound thick books",
+    "Standard export corrugated carton and eco-friendly pallet, film wrapping",
+    "https://sc01.alicdn.com/kf/HTB1hld2KFXXXXaJaXXXq6xXFXXXF.jpg"
+  ]
+];
 
 class HomePage extends React.Component {
   constructor(props) {
@@ -36,15 +62,19 @@ class HomePage extends React.Component {
     });
   };
 
-  loadAuction = async () => {
+  toggle = async () => {
+    for (var i = 0; i < testAuctions.length; i++) {
+      await this.state.contract.methods.createAuction(60*(i+1), this.state.web3.utils.toWei((i+5).toString(), 'ether'), testAuctions[i][0], testAuctions[i][1], testAuctions[i][2])
+        .send({from:this.state.accounts[0], value:this.state.web3.utils.toWei('0.1', 'ether')});
+    }
   };
 
   render() {
     return(
       <div>
-        <h1>OwnedId: {this.state.ownedId}</h1>
-        <h1>WinnedId: {this.state.winnedId}</h1>
-        <h1>{Math.floor(Date.now()/1000)}</h1>
+        <div className='homepage-title'>
+          <h1>Owned and Winned Auctions</h1>
+        </div>
         <div>
           <AuctionList
             web3={this.state.web3}
@@ -56,6 +86,10 @@ class HomePage extends React.Component {
             accounts={this.state.accounts}
             contract={this.state.contract}
             type="winned" />
+        </div>
+        <div>
+          test:
+          <button onClick={this.toggle}>createAuctionTest</button>
         </div>
       </div>
     );

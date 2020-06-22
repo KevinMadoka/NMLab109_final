@@ -11,7 +11,7 @@ import BidNavbar from "./component/BidNavbar";
 import HomePage from "./pages/HomePage";
 import AuctionPage from "./pages/AuctionPage";
 import BiddingPage from "./pages/BiddingPage";
-import UploadPage from "./pages/UploadPage";
+import UploadPage from "./pages/UploadPage_reactstrap";
 
 
 
@@ -47,7 +47,6 @@ class App extends React.Component {
       console.error(error);
     }
   };
-
   render() {
     if (!this.state.web3) {
       return(
@@ -60,10 +59,10 @@ class App extends React.Component {
       return(
         <div>
           <Router>
-            <div className='navbar'>
+            <div>
               <BidNavbar />
             </div>
-            <div className='bidchain'>
+            <div>
               <Switch>
                 <Route exact path='/home'     render={(props) => <HomePage    {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>
                 <Route exact path='/auction'  render={(props) => <AuctionPage {...props} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />}/>

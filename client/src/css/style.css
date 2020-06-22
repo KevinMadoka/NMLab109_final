@@ -1,10 +1,30 @@
-.itemImage img{
-  display: block;
+.media-img img{
   width: 336px;
   height: auto;
 }
-.itemCard {
-  width: 336px;
-  height: auto;
+.dropdown {
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
-
+.listgroup {
+  width: auto;
+}
+.card-bg {
+  margin-left: 350px;
+  margin-right: 350px;
+  padding-top: 125px;
+  padding-bottom: 125px;
+}
+.auctionpage-title {
+  margin-left: 670px;
+  margin-top: 30px;
+}
+.homepage-title {
+  margin-left: 570px;
+  margin-top: 30px;
+}
+.auctionpage-button {
+  margin-left: 750px;
+  margin-top: 30px;
+}

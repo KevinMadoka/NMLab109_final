@@ -1,7 +1,6 @@
 import React from "react";
 import AuctionItem from "./AuctionItem";
 import {CardGroup} from "reactstrap";
-import "../css/style.css";
 
 class AuctionList extends React.Component {
   constructor(props) {
@@ -11,6 +10,7 @@ class AuctionList extends React.Component {
       accounts: this.props.accounts,
       contract: this.props.contract,
       type: this.props.type,
+      pageType: this.props.pageType,
       idList: []
     };
   }
@@ -24,10 +24,19 @@ class AuctionList extends React.Component {
         idList.push(await this.state.contract.methods.seller2Auction(this.state.accounts[0], i).call());
       }
     }
-    else if (this.state.type == "winned") {
+    else if (this.state.type === "winned") {
       num = await this.state.contract.methods.winner2AuctionNum(this.state.accounts[0]).call();
       for (var i = 0; i < num; i++) {
         idList.push(await this.state.contract.methods.winner2Auction(this.state.accounts[0], i).call());
+      }
+    }
+    else if (this.state.type === "active") {
+      num = await this.state.contract.methods.getAuctionNum().call();
+      var state = 0;
+      for (var i = 0; i < num; ++i) {
+        state = await this.state.contract.methods.getAuctionStateById(i).call();
+        if (state === '0' || state === '1')
+          idList.push(i);
       }
     }
     this.setState({
@@ -38,15 +47,13 @@ class AuctionList extends React.Component {
   render() {
     return (
       <div>
-        <CardGroup>
-          {this.state.idList.map(
-            (auctionId) => {
-              return(
-                <AuctionItem id={auctionId} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />
-              );
-            }
-          )}
-        </CardGroup>
+        {this.state.idList.map(
+          (auctionId, idx) => {
+            return(
+              <AuctionItem key={idx.toString()} id={auctionId} type={this.state.type} pageType={this.state.pageType} web3={this.state.web3} accounts={this.state.accounts} contract={this.state.contract} />
+            );
+          }
+        )}
       </div>
     );
   }

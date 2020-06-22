@@ -194,8 +194,10 @@ contract Bidchain {
     }
     function getRemainTime(uint32 auctionId) external view returns(uint32) {
         require(auctionId < auctions.length);
-        require(uint32(now) < auctions[auctionId].endTime);
-        return auctions[auctionId].endTime - uint32(now);
+        if (uint32(now) >= auctions[auctionId].endTime)
+            return 0;
+        else
+            return auctions[auctionId].endTime - uint32(now);
     }
     function getSeller(uint32 auctionId) external view returns(address) {
         require(auctionId < auctions.length);
@@ -233,6 +235,10 @@ contract Bidchain {
     }
     function setSecurityDeposit(uint256 newDeposit) external onlyOwner {
         securityDeposit = newDeposit;
+    }
+
+    function getAuctionStateById(uint32 auctionId) external view returns(State) {
+        return auctions[auctionId].state;
     }
 
 
