@@ -62,6 +62,7 @@ contract Bidchain {
     }
     modifier validBidding(uint32 auctionId) {
         require(auctionId < auctions.length, "Invalid auction ID!");
+        require(msg.sender != auctions[auctionId].seller, "You can't bid your own auction!");
         require(msg.sender.balance >= msg.value, "Insufficient account balance!");
         require(msg.value > auctions[auctionId].price, "Your price is less than current price!");
         require(uint32(now) < auctions[auctionId].endTime, "Auction has closed!");
