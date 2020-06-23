@@ -14,15 +14,15 @@ $ truffle migrate
 $ cd client
 $ npm install
 ```
-In order to import files outside `src` directory,
-you should modify line 44 at 
-`client/node_modules/react-dev-utils/ModuleScopePlugin.js` to `return true;`
+In order to import files outside `src` directory,\
+you should modify line 44 at\
+`client/node_modules/react-dev-utils/ModuleScopePlugin.js` to `return true;`\
 or run this shell script in `client`:
 ```
 $ chmod -x changeScope.sh
 $ bash changeScope.sh
 ```
-After that run `npm start` in `client`
-Open browser and go to `http://localhost:3000/`
+After that run `npm start` in `client`\
+Open browser and go to `http://localhost:3000/`\
 Copy ganache accounts' private key to Metamask "import account"
 
