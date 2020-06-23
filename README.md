@@ -16,7 +16,7 @@ $ npm install
 ```
 In order to import files outside `src` directory,
 you should modify line 44 at 
-`client/node\_modules/react-dev-utils/ModuleScopePlugin.js` to `return true;`
+`client/node_modules/react-dev-utils/ModuleScopePlugin.js` to `return true;`
 or run this shell script in `client`:
 ```
 $ chmod -x changeScope.sh
