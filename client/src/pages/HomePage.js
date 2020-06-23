@@ -67,6 +67,7 @@ class HomePage extends React.Component {
       await this.state.contract.methods.createAuction(60*(i+1), this.state.web3.utils.toWei((i+5).toString(), 'ether'), testAuctions[i][0], testAuctions[i][1], testAuctions[i][2])
         .send({from:this.state.accounts[0], value:this.state.web3.utils.toWei('0.1', 'ether')});
     }
+    window.location.reload(false);
   };
 
   render() {

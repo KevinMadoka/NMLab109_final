@@ -17,19 +17,23 @@
   padding-bottom: 125px;
 }
 .auctionpage-title {
-  margin-left: 565px;
+  text-align: center;
   margin-top: 30px;
 }
 .homepage-title {
-  margin-left: 455px;
   margin-top: 30px;
+  text-align: center;
 }
 .auctionpage-button {
-  margin-left: 648px;
+  text-align: center;
   margin-top: 30px;
 }
 .biddingpage-title {
-  margin-left: 385px;
+  text-align: center;
+  margin-top: 30px;
+}
+.uploadpage-title {
+  text-align: center;
   margin-top: 30px;
 }
 
